@@ -1,0 +1,100 @@
+const http = require('http');
+const fs = require('fs');
+const ejs = require('ejs');
+const url = require('url');
+const qs = require('querystring');
+
+const index_page = fs.readFileSync('index.ejs', 'utf-8');
+const other_page = fs.readFileSync('other.ejs', 'utf-8');
+const style_css = fs.readFileSync('style.css', 'utf-8');
+
+var data = {
+    msg: 'no message...'
+};
+
+var data2 = {
+    'Taro': ['taro@yamada', '09-999-999', 'Tokyo'],
+    'Hanako': ['hanako@flower', '080-888-888', 'Yokohama'],
+    'Tomoko': ['tomo@kazu', '070-777-777', 'Hyougo'],
+    'Ashika': ['ashi@tomo', '060-666-666', 'Ishikawa'],
+}
+
+//createServerの処理
+const getFromClient = (request,response) => {
+    let url_parts = url.parse(request.url, true);
+
+    switch (url_parts.pathname) {
+        case '/':
+            response_index(request, response);
+            break;
+
+        case '/other':
+            response_other(request, response);
+            break;
+
+        case 'style.css':
+            response.writeHead(200, {'Content-Type': 'text/css'});
+            response.write(style_css);
+            response.end();
+            break;
+
+        default: 
+            response.writeHead(200, {'Content-Type': 'text/html'});
+            response.end('no page...');
+            break;
+    }
+}
+
+//indexのアクセス処理
+const response_index = (request, response) => {
+    //Postアクセス時の処理
+    if (request.method == 'post') {
+        var body = '';
+        
+        //データ受信時のイベント処理
+        request.on('data', (data) => {
+            body += data;
+        });
+
+        //データ受信終了のイベント処理
+        request.on('end', () => {
+            data = qs.parse(body); //データのパース処理
+            write_index(request.response);
+        });
+    } else {
+        write_index(request, response);
+    }
+};
+
+//indexの表示の作成
+const write_index = (request, response) => {
+    var msg = "*伝言を表示します"
+    var content = ejs.reder(index_page, {
+        title: "Index",
+        content: msg,
+        data: data,
+    });
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.write(content);
+    response.end();
+}
+
+//otherのアクセス処理
+const response_other = (request, response) => {
+    var msg = "これはOtherページです!"
+    var content = ejs.render(other_page, {
+        title: "Other",
+        content: msg,
+        data: data2,
+        filename: 'data_item'
+    });
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.write(content);
+    response.end();
+}
+
+//serverの作成
+let server = http.createServer(getFromClient);
+//serverを待受状態にする
+server.listen(3000);
+console.log('-Server Start-');

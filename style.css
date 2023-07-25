@@ -1,0 +1,17 @@
+h1 {
+    font-size: 60pt;
+    color: fuchsia;
+    text-align: center;
+    margin: 2rem;
+}
+
+body {
+    font-size: 12pt;
+    background-color: mediumseagreen;
+    margin: 0 1.5rem;
+}
+
+p {
+    font-size: 14pt;
+    margin: 0 1.5rem;
+}
