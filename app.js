@@ -91,6 +91,7 @@ const setCookie = (key, value,response) => {
 
 //クッキーの値を取得
 const getCookie = (key, request) => {
+    //三項演算子でcookieを得る
     var cookie_data = request.headers.cookie != undefined ?
         request.headers.cookie : '';
     var data = cookie_data.split(';');
